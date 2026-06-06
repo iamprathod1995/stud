@@ -30,8 +30,8 @@ const PORT =
 
   } catch (error) {
 
-    logger.error(error);
-
-    process.exit(1);
+   console.error("DATABASE ERROR:", error);
+  logger.error(error);
+  process.exit(1);
   }
 })();
