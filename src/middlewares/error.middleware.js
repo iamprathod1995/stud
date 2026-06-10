@@ -13,7 +13,6 @@ module.exports =
   ).json({
 
     success: false,
-
     message:
       err.message ||
       "Internal Server Error"

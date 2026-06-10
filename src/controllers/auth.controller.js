@@ -1,78 +1,80 @@
 const authService =
-require("../services/auth.service");
+  require("../services/auth.service");
 
 exports.register =
-async (req, res, next) => {
+  async (req, res, next) => {
 
-  try {
+    try {
 
-    const user =
-      await authService.register(
-        req.body
-      );
+      const user =
+        await authService.register(
+          req.body
+        );
 
-    res.status(201).json({
-      success: true,
-      data: user
-    });
+      res.status(201).json({
+        success: true,
+        data: user
+      });
 
-  } catch (error) {
-    next(error);
-  }
-};
+    } catch (error) {
+      next(error);
+    }
+  };
 
 exports.login =
-async (req, res, next) => {
+  async (req, res, next) => {
 
-  try {
+    try {
 
-    const result =
-      await authService.login(
-        req.body.email,
-        req.body.password
-      );
+      const result =
+        await authService.login(
+          req.body.email,
+          req.body.password
+        );
 
-    res.status(200).json({
-      success: true,
-      data: result
-    });
+      res.status(200).json({
+        status: 200,
+        success: true,
+        message: "Login completed successfully",
+        data: result
+      });
 
-  } catch (error) {
-    next(error);
-  }
-};
+    } catch (error) {
+      next(error);
+    }
+  };
 
 exports.logout =
-async (req, res, next) => {
+  async (req, res, next) => {
 
-  try {
+    try {
 
-    await authService.logout(
-      req.body.refreshToken
-    );
+      await authService.logout(
+        req.body.refreshToken
+      );
 
-    res.status(200).json({
-      success: true,
-      message:
-        "Logout successful"
-    });
+      res.status(200).json({
+        success: true,
+        message:
+          "Logout successful"
+      });
 
-  } catch (error) {
-    next(error);
-  }
-};
+    } catch (error) {
+      next(error);
+    }
+  };
 
 exports.profile =
-async (req, res, next) => {
+  async (req, res, next) => {
 
-  try {
+    try {
 
-    res.status(200).json({
-      success: true,
-      user: req.user
-    });
+      res.status(200).json({
+        success: true,
+        user: req.user
+      });
 
-  } catch (error) {
-    next(error);
-  }
-};
+    } catch (error) {
+      next(error);
+    }
+  };

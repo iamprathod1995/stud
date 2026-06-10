@@ -4,17 +4,17 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 
 const securityMiddleware =
-require("./middlewares/security.middleware");
+  require("./middlewares/security.middleware");
 
 const errorMiddleware =
-require("./middlewares/error.middleware");
+  require("./middlewares/error.middleware");
 
 // Optional Step 7 additions
 const requestLogger =
-require("./middlewares/request-logger.middleware");
+  require("./middlewares/request-logger.middleware");
 
 const rateLimit =
-require("./middlewares/rate-limit.middleware");
+  require("./middlewares/rate-limit.middleware");
 
 const app = express();
 
@@ -59,6 +59,12 @@ app.use(rateLimit);
  */
 app.use(morgan("dev"));
 
+
+app.use((req, res, next) => {
+  res.setHeader("Cache-Control", "no-store");
+  next();
+});
+
 /**
  * =========================
  * HEALTH CHECK
@@ -77,25 +83,28 @@ app.get("/", (req, res) => {
  * =========================
  */
 const authRoutes =
-require("./routes/auth.routes");
+  require("./routes/auth.routes");
 
 const roleRoutes =
-require("./routes/role.routes");
+  require("./routes/role.routes");
 
-const moduleRoutes =
-require("./routes/module.routes");
+const schoolRoutes = require("./routes/school.routes");
+const moduleRoutes = require("./routes/module.routes");
 
-const permissionRoutes =
-require("./routes/permission.routes");
+const permissionRoutes = require("./routes/permission.routes");
 
-const userRoutes =
-require("./routes/user.routes");
+const userRoutes = require("./routes/user.routes");
+
+
+const userStaffs = require("./routes/staff.routes");
 
 app.use("/api/auth", authRoutes);
-app.use("/api/roles", roleRoutes);
 app.use("/api/modules", moduleRoutes);
+app.use("/api/roles", roleRoutes);
 app.use("/api/permissions", permissionRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/schools", schoolRoutes);
+app.use("/api/staff", userStaffs);
 
 /**
  * =========================
@@ -105,7 +114,14 @@ app.use("/api/users", userRoutes);
 app.use(
   "/api-docs",
   swaggerUi.serve,
-  swaggerUi.setup(swaggerSpec)
+  swaggerUi.setup(swaggerSpec, {
+    swaggerOptions: {
+      requestInterceptor: (req) => {
+        req.headers["Cache-Control"] = "no-cache";
+        return req;
+      }
+    }
+  })
 );
 
 /**

@@ -126,23 +126,22 @@ router.post(
 
 
 
-router.get(
-  "/profile",
-  /**
-   * @swagger
-   * /api/auth/profile:
-   *   get:
-   *     summary: Get Logged In User Profile
-   *     tags: [Authentication]
-   *     security:
-   *       - BearerAuth: []
-   *     responses:
-   *       200:
-   *         description: User profile details
-   */
-  authMiddleware,
-  authController.profile
-);
+// router.get(
+//   "/profile",
+//   /**
+//    * @swagger
+//    * /api/auth/profile:
+//    *   get:
+//    *     summary: Get Logged In User Profile
+//    *     tags: [Authentication]
+//    *     security:
+//    *       - BearerAuth: []
+//    *     responses:
+//    *       200:
+//    *         description: User profile details
+//    */
+//   authController.profile
+// );
 
 
 module.exports = router;

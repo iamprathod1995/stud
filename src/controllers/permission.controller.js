@@ -1,5 +1,4 @@
-const permissionService =
-require("../services/permission.service");
+const permissionService = require("../services/permission.service");
 
 exports.assign =
 async (req, res, next) => {
