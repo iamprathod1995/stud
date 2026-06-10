@@ -10,14 +10,9 @@ const options = {
     },
     servers: [
       {
-        url: process.env.BASE_URL || "http://localhost:5000"
+        url: "https://stud-tnyk.onrender.com/"
       }
     ],
-    // servers: [
-    //   {
-    //     url:"http://localhost:5000"
-    //   }
-    // ],
     components: {
       securitySchemes: {
         BearerAuth: {
