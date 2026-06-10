@@ -5,19 +5,19 @@ const options = {
     openapi: "3.0.0",
     info: {
       title: "RBAC API",
-      version: "1.0.1",
+      version: "1.0.2",
       description: "Role Permission Management API"
     },
-    // servers: [
-    //   {
-    //     url: process.env.BASE_URL || "http://localhost:5000"
-    //   }
-    // ],
     servers: [
       {
-        url:"http://localhost:5000"
+        url: process.env.BASE_URL || "http://localhost:5000"
       }
     ],
+    // servers: [
+    //   {
+    //     url:"http://localhost:5000"
+    //   }
+    // ],
     components: {
       securitySchemes: {
         BearerAuth: {
