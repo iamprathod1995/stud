@@ -7,14 +7,25 @@ const sequelize = new Sequelize(
   process.env.DB_PASSWORD,
   {
     host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 3306,
     dialect: "mysql",
     logging: false,
     timezone: "+05:30",
+
     pool: {
       max: 10,
       min: 0,
       acquire: 30000,
       idle: 10000
+    },
+
+    // 🔥 IMPORTANT FIX (Render / Hostinger / Cloud DB)
+    dialectOptions: {
+      connectTimeout: 60000,
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
     }
   }
 );
