@@ -22,10 +22,10 @@ const sequelize = new Sequelize(
     // 🔥 IMPORTANT FIX (Render / Hostinger / Cloud DB)
     dialectOptions: {
       connectTimeout: 60000,
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
+      // ssl: {
+      //   require: true,
+      //   rejectUnauthorized: false
+      // }
     }
   }
 );
