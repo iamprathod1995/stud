@@ -94,17 +94,14 @@ module.exports = {
         defaultValue: 1,
         comment: '1=Active, 0=Inactive'
       },
-
       created_at: {
-        allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        allowNull: false
       },
 
       updated_at: {
-        allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
+        allowNull: false
       }
     });
 
@@ -121,6 +118,6 @@ module.exports = {
 
     await queryInterface.sequelize.query(
       'DROP TYPE IF EXISTS enum_students_gender;'
-    ).catch(() => {});
+    ).catch(() => { });
   }
 };

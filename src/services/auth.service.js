@@ -47,7 +47,7 @@ class AuthService {
   }
 
   async login(email, password) {
-
+  
     const user =
       await User.findOne({
         where: { email }
@@ -59,12 +59,16 @@ class AuthService {
       );
     }
 
+
     const isMatch =
       await comparePassword(
         password,
         user.password
       );
 
+  
+    console.log("DB PASSWORD:", user.password);
+    console.log("MATCH:", isMatch);
     if (!isMatch) {
       throw new Error(
         "Invalid credentials"
@@ -86,6 +90,9 @@ class AuthService {
           30 * 24 * 60 * 60 * 1000
         )
     });
+
+    // const hashedPassword =
+    // await hashPassword("School@123");
 
     return {
       user,

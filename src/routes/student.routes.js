@@ -31,11 +31,25 @@ const {
  * /api/students:
  *   get:
  *     summary: Get All Students
- *     description: Get students with pagination, search, sorting and school filter.
+ *     description: Get students with pagination, search, sorting, and filters (school, class, section).
  *     tags: [Students]
  *     parameters:
  *       - in: query
  *         name: school_id
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           example: 8
+ *
+ *       - in: query
+ *         name: class_id
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           example: 2
+ *
+ *       - in: query
+ *         name: section_id
  *         required: false
  *         schema:
  *           type: integer
@@ -92,7 +106,6 @@ const {
  *         description: Students fetched successfully
  */
 router.get("/", pagination, controller.getAll);
-
 //////////////////////////////////////////////////////
 // 📌 CREATE STUDENT
 //////////////////////////////////////////////////////

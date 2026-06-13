@@ -5,21 +5,15 @@ const { Op } =
 const userService = require("./user.service");
 const { hashPassword } = require("../utils/password");
 exports.create = async (payload) => {
-  const hashedPassword =
-    await hashPassword(
-      payload.password,
-    );
+ 
   const user = await userService.create({
     name: payload.owner_name,
     email: payload.email,
-    password: hashedPassword,
+    password: payload.password,
     role_id: 2,
   });
 
-
-
-
-  const school = await School.create({
+ const school = await School.create({
     school_name: payload.school_name,
     address: payload.address,
     school_logo: payload.school_logo,

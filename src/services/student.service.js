@@ -1,4 +1,4 @@
-const { Student } = require("../models");
+const { Student, School, Class, Section } = require("../models");
 const { Op } = require("sequelize");
 
 /**
@@ -36,43 +36,37 @@ exports.getAll = async (
   search,
   sortBy,
   order,
-  school_id
+  school_id,
+  class_id,
+  section_id
 ) => {
   const offset = (page - 1) * limit;
 
   const where = {};
 
+  // school filter
   if (school_id) {
     where.school_id = school_id;
   }
 
+  // class filter
+  if (class_id) {
+    where.class_id = class_id;
+  }
+
+  // section filter
+  if (section_id) {
+    where.section_id = section_id;
+  }
+
+  // search filter
   if (search) {
     where[Op.or] = [
-      {
-        student_name: {
-          [Op.like]: `%${search}%`
-        }
-      },
-      {
-        admission_no: {
-          [Op.like]: `%${search}%`
-        }
-      },
-      {
-        roll_no: {
-          [Op.like]: `%${search}%`
-        }
-      },
-      {
-        father_name: {
-          [Op.like]: `%${search}%`
-        }
-      },
-      {
-        contact_number: {
-          [Op.like]: `%${search}%`
-        }
-      }
+      { student_name: { [Op.like]: `%${search}%` } },
+      { admission_no: { [Op.like]: `%${search}%` } },
+      { roll_no: { [Op.like]: `%${search}%` } },
+      { father_name: { [Op.like]: `%${search}%` } },
+      { contact_number: { [Op.like]: `%${search}%` } }
     ];
   }
 
@@ -95,6 +89,23 @@ exports.getAll = async (
 
   const { count, rows } = await Student.findAndCountAll({
     where,
+    include: [
+        {
+            model: School,
+            as: "school",
+            attributes: ["id", "school_name"]
+        },
+        {
+            model: Class,
+            as: "class",
+            attributes: ["id", "class_name"]
+        },
+        {
+            model: Section,
+            as: "section",
+            attributes: ["id", "section_name"]
+        }
+    ],
     limit,
     offset,
     order: [[sortField, sortOrder]]

@@ -47,11 +47,11 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true
         },
 
-            email: {
-                type: DataTypes.STRING(255),
-                allowNull: true,
-                unique: true
-            },
+        email: {
+            type: DataTypes.STRING(255),
+            allowNull: true,
+            unique: true
+        },
 
         contact_number: {
             type: DataTypes.STRING(20),
@@ -94,6 +94,30 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'students',
         underscored: true
     });
+
+    /**
+     * Associations
+     */
+    Student.associate = (models) => {
+        // Student belongs to School
+        Student.belongsTo(models.School, {
+            foreignKey: 'school_id',
+            as: 'school'
+            
+        });
+
+        // Student belongs to Class
+        Student.belongsTo(models.Class, {
+            foreignKey: 'class_id',
+            as: 'class'
+        });
+
+        // Student belongs to Section
+        Student.belongsTo(models.Section, {
+            foreignKey: 'section_id',
+            as: 'section'
+        });
+    };
 
     return Student;
 };

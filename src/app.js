@@ -100,6 +100,13 @@ const userStaffs = require("./routes/staff.routes");
 
 const userStudents = require("./routes/student.routes");
 
+const userClasses = require("./routes/class.routes");
+
+const userSections = require("./routes/section.routes");
+
+
+const userStaffLeave = require("./routes/staffLeave.routes");
+
 app.use("/api/auth", authRoutes);
 app.use("/api/modules", moduleRoutes);
 app.use("/api/roles", roleRoutes);
@@ -108,6 +115,9 @@ app.use("/api/users", userRoutes);
 app.use("/api/schools", schoolRoutes);
 app.use("/api/staff", userStaffs);
 app.use("/api/students", userStudents);
+app.use("/api/classes", userClasses);
+app.use("/api/sections", userSections);
+app.use("/api/staff-leaves", userStaffLeave);
 /**
  * =========================
  * SWAGGER

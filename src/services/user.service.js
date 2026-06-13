@@ -26,22 +26,16 @@ class UserService {
       );
     }
 
-    const hashedPassword =
-      await hashPassword(
-        data.password
-      );
-
+    const hashedPassword =await hashPassword(data.password);
+  
     const user =
       await User.create({
 
         name: data.name,
         email: data.email,
-        password:
-          hashedPassword,
-        role_id:
-          data.role_id,
-        status:
-          data.status ?? true
+        password: hashedPassword,
+        role_id:data.role_id,
+        status:data.status ?? true
 
       });
 

@@ -29,7 +29,7 @@ module.exports = {
         allowNull: false
       },
       email: {
-        type: Sequelize.STRING(255),
+        type: Sequelize.STRING(191),
         allowNull: true,
         unique: true
       },
@@ -94,15 +94,13 @@ module.exports = {
       },
 
       created_at: {
-        allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        allowNull: false
       },
 
       updated_at: {
-        allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
+        allowNull: false
       }
     });
   },

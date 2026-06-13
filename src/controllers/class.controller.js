@@ -1,24 +1,23 @@
-const studentService = require("../services/student.service");
+const classService = require("../services/class.service");
 
 /**
- * CREATE STUDENT
+ * CREATE CLASS
  */
 exports.create = async (req, res, next) => {
   try {
-    const data = await studentService.create(req.body);
+    const data = await classService.create(req.body);
 
     res.status(201).json({
       success: true,
-      data: data
+      data
     });
-
   } catch (error) {
     next(error);
   }
 };
 
 /**
- * GET ALL STUDENTS
+ * GET ALL CLASSES
  */
 exports.getAll = async (req, res, next) => {
   try {
@@ -29,20 +28,16 @@ exports.getAll = async (req, res, next) => {
       search,
       sortBy = "id",
       order = "DESC",
-      school_id,
-      class_id,
-      section_id
+      school_id
     } = req.query;
 
-    const result = await studentService.getAll(
+    const result = await classService.getAll(
       page,
       limit,
       search,
       sortBy,
       order,
-      school_id,
-      class_id,
-      section_id
+      school_id
     );
 
     res.status(200).json({
@@ -53,61 +48,57 @@ exports.getAll = async (req, res, next) => {
       limit: result.limit,
       totalPages: result.totalPages
     });
-
   } catch (error) {
     next(error);
   }
 };
 
 /**
- * GET STUDENT BY ID
+ * GET CLASS BY ID
  */
 exports.getById = async (req, res, next) => {
   try {
-    const data = await studentService.getById(req.params.id);
+    const data = await classService.getById(req.params.id);
 
     res.status(200).json({
       success: true,
-      data: data
+      data
     });
-
   } catch (error) {
     next(error);
   }
 };
 
 /**
- * UPDATE STUDENT
+ * UPDATE CLASS
  */
 exports.update = async (req, res, next) => {
   try {
-    const data = await studentService.update(
+    const data = await classService.update(
       req.params.id,
       req.body
     );
 
     res.status(200).json({
       success: true,
-      data: data
+      data
     });
-
   } catch (error) {
     next(error);
   }
 };
 
 /**
- * DELETE STUDENT
+ * DELETE CLASS
  */
 exports.delete = async (req, res, next) => {
   try {
-    await studentService.delete(req.params.id);
+    await classService.delete(req.params.id);
 
     res.status(200).json({
       success: true,
-      message: "Student deleted successfully"
+      message: "Class deleted successfully"
     });
-
   } catch (error) {
     next(error);
   }
