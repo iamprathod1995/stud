@@ -52,15 +52,19 @@ const {
  *           example: 2
  *         can_add:
  *           type: boolean
+ *           default: false
  *           example: true
  *         can_view:
  *           type: boolean
+ *           default: false
  *           example: true
  *         can_update:
  *           type: boolean
+ *           default: false
  *           example: false
  *         can_delete:
  *           type: boolean
+ *           default: false
  *           example: false
  *
  *     BulkAssignPermission:
@@ -76,21 +80,27 @@ const {
  *           type: array
  *           items:
  *             type: object
+ *             required:
+ *               - module_id
  *             properties:
  *               module_id:
  *                 type: integer
  *                 example: 10
  *               can_add:
  *                 type: boolean
+ *                 default: false
  *                 example: true
  *               can_view:
  *                 type: boolean
+ *                 default: false
  *                 example: true
  *               can_update:
  *                 type: boolean
+ *                 default: false
  *                 example: false
  *               can_delete:
  *                 type: boolean
+ *                 default: false
  *                 example: false
  *
  * tags:
@@ -102,7 +112,7 @@ const {
  * @swagger
  * /api/permissions:
  *   post:
- *     summary: Assign single Permission
+ *     summary: Assign single permission
  *     tags: [Permissions]
  *     requestBody:
  *       required: true
@@ -146,7 +156,7 @@ router.post(
  * @swagger
  * /api/permissions:
  *   get:
- *     summary: Get All Permissions
+ *     summary: Get all permissions
  *     tags: [Permissions]
  *     responses:
  *       200:
@@ -158,7 +168,7 @@ router.get("/", controller.getAll);
  * @swagger
  * /api/permissions/role/{roleId}:
  *   get:
- *     summary: Get Role Permissions
+ *     summary: Get permissions by role
  *     tags: [Permissions]
  *     parameters:
  *       - in: path
@@ -166,6 +176,7 @@ router.get("/", controller.getAll);
  *         required: true
  *         schema:
  *           type: integer
+ *         example: 1
  *     responses:
  *       200:
  *         description: Role permissions fetched successfully
