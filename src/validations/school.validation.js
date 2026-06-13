@@ -8,7 +8,10 @@ Joi.object({
 
   owner_name: Joi.string()
     .required(),
-
+    
+  role_id: Joi.number()
+      .required(),
+      
   school_logo: Joi.string()
     .allow("")
     .optional(),

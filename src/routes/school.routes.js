@@ -5,7 +5,7 @@ const controller = require("../controllers/school.controller");
 
 const pagination = require("../middlewares/pagination.middleware");
 const validate = require("../middlewares/validate.middleware");
-
+const upload = require("../utils/upload"); // 🔥 multer config
 const {
   createSchoolSchema
 } = require("../validations/school.validation");
@@ -103,7 +103,7 @@ router.get("/", pagination, controller.getAll);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:           
@@ -112,16 +112,20 @@ router.get("/", pagination, controller.getAll);
  *               - owner_name
  *               - contact_number
  *               - address
+ *               - role_id
  *             properties:
  *               school_name:
  *                 type: string
  *                 example: ABC Public School
+ *               role_id:
+ *                 type: integer
+ *                 example: 2
  *               owner_name:
  *                 type: string
  *                 example: Rahul Sharma
  *               school_logo:
  *                 type: string
- *                 example: https://example.com/logo.png
+ *                 format: binary
  *               contact_number:
  *                 type: string
  *                 example: 9876543210
@@ -143,6 +147,7 @@ router.get("/", pagination, controller.getAll);
  */
 router.post(
   "/",
+  upload.single("school_logo"),  // 🔥 MUST BE FIRST
   validate(createSchoolSchema),
   controller.create
 );

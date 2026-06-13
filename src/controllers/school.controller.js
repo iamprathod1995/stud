@@ -2,11 +2,21 @@ const schoolService = require("../services/school.service");
 
 exports.create = async (req, res, next) => {
   try {
-    const data = await schoolService.create(req.body);
+
+    const payload = {
+      ...req.body,
+      role_id: Number(req.body.role_id),
+      status: Number(req.body.status),
+      school_logo: req.file
+        ? req.file.path.split(path.sep).join("/")
+        : null
+    };
+
+    const data = await schoolService.create(payload);
 
     res.status(201).json({
       success: true,
-      data: data
+      data
     });
 
   } catch (error) {

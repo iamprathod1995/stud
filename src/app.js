@@ -118,6 +118,7 @@ app.use("/api/students", userStudents);
 app.use("/api/classes", userClasses);
 app.use("/api/sections", userSections);
 app.use("/api/staff-leaves", userStaffLeave);
+app.use("/uploads", express.static("uploads"));
 /**
  * =========================
  * SWAGGER
