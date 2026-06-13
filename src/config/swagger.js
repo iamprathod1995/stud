@@ -5,7 +5,7 @@ const options = {
     openapi: "3.0.0",
     info: {
       title: "RBAC API",
-      version: "1.0.4",
+      version: "1.0.5",
       description: "Role Permission Management API"
     },
     
