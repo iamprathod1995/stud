@@ -6,6 +6,7 @@ const validate = require("../middlewares/validate.middleware");
 
 const {
   assignPermissionSchema,
+  assignBulkPermissionSchema
 } = require("../validations/permission.validation");
 
 /**
@@ -62,6 +63,36 @@ const {
  *           type: boolean
  *           example: false
  *
+ *     BulkAssignPermission:
+ *       type: object
+ *       required:
+ *         - role_id
+ *         - permissions
+ *       properties:
+ *         role_id:
+ *           type: integer
+ *           example: 1
+ *         permissions:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               module_id:
+ *                 type: integer
+ *                 example: 10
+ *               can_add:
+ *                 type: boolean
+ *                 example: true
+ *               can_view:
+ *                 type: boolean
+ *                 example: true
+ *               can_update:
+ *                 type: boolean
+ *                 example: false
+ *               can_delete:
+ *                 type: boolean
+ *                 example: false
+ *
  * tags:
  *   name: Permissions
  *   description: Permission Management APIs
@@ -71,7 +102,7 @@ const {
  * @swagger
  * /api/permissions:
  *   post:
- *     summary: Assign Permission
+ *     summary: Assign single Permission
  *     tags: [Permissions]
  *     requestBody:
  *       required: true
@@ -82,17 +113,33 @@ const {
  *     responses:
  *       201:
  *         description: Permission assigned successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Permission'
- *       400:
- *         description: Validation Error
  */
 router.post(
   "/",
   validate(assignPermissionSchema),
   controller.assign
+);
+
+/**
+ * @swagger
+ * /api/permissions/bulk:
+ *   post:
+ *     summary: Assign bulk permissions for a role
+ *     tags: [Permissions]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/BulkAssignPermission'
+ *     responses:
+ *       201:
+ *         description: Bulk permissions assigned successfully
+ */
+router.post(
+  "/bulk",
+  validate(assignBulkPermissionSchema),
+  controller.assignBulk
 );
 
 /**
@@ -104,12 +151,6 @@ router.post(
  *     responses:
  *       200:
  *         description: List of permissions
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Permission'
  */
 router.get("/", controller.getAll);
 
@@ -125,18 +166,9 @@ router.get("/", controller.getAll);
  *         required: true
  *         schema:
  *           type: integer
- *         example: 1
  *     responses:
  *       200:
  *         description: Role permissions fetched successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Permission'
- *       404:
- *         description: Role not found
  */
 router.get("/role/:roleId", controller.getByRole);
 
