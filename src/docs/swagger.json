@@ -1,0 +1,1146 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "VidyaSetu Backend API Documentation",
+    "version": "1.0.0",
+    "description": "Production-ready, clean Node.js Express REST API backend with MySQL support, JWT Authentication, Role-based Authorization, Input Validation, and Dual File Storage (Local/S3)."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3005",
+      "description": "Local & Cloud Run Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "admin@sahara.edu"
+          },
+          "password": {
+            "type": "string",
+            "example": "admin123"
+          }
+        }
+      },
+      "StudentInput": {
+        "type": "object",
+        "required": [
+          "firstName",
+          "lastName",
+          "grade",
+          "section"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "SHR-2024-001"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "Aria"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Montgomery"
+          },
+          "email": {
+            "type": "string",
+            "example": "aria.m@academy.edu"
+          },
+          "grade": {
+            "type": "string",
+            "example": "Grade 11"
+          },
+          "section": {
+            "type": "string",
+            "example": "Alpha"
+          },
+          "parentName": {
+            "type": "string",
+            "example": "Elias Montgomery"
+          },
+          "parentContact": {
+            "type": "string",
+            "example": "+1 (555) 012-3456"
+          },
+          "dob": {
+            "type": "string",
+            "example": "2008-05-12"
+          },
+          "gender": {
+            "type": "string",
+            "example": "Female"
+          },
+          "bloodGroup": {
+            "type": "string",
+            "example": "O Positive"
+          },
+          "homeAddress": {
+            "type": "string",
+            "example": "42, Silver Oaks Apartments, Jaipur"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Active",
+              "Inactive"
+            ],
+            "example": "Active"
+          }
+        }
+      },"FeeHeadInput": {
+  "type": "object",
+  "required": [
+    "fee_name"
+  ],
+  "properties": {
+    "id": {
+      "type": "integer",
+      "example": 1,
+      "description": "Pass id for update"
+    },
+    "fee_name": {
+      "type": "string",
+      "example": "Tuition Fee"
+    },
+    "description": {
+      "type": "string",
+      "example": "Monthly tuition charges"
+    },
+    "status": {
+      "type": "integer",
+      "enum": [
+        0,
+        1
+      ],
+      "example": 1
+    }
+  }
+},
+
+"FeeStructureInput": {
+  "type": "object",
+  "required": [
+    "academic_year_id",
+    "class_id",
+    "fee_head_id",
+    "amount"
+  ],
+  "properties": {
+
+    "id": {
+      "type": "integer",
+      "example": 1,
+      "description": "Pass id for update"
+    },
+
+    "academic_year_id": {
+      "type": "integer",
+      "example": 1
+    },
+
+    "class_id": {
+      "type": "integer",
+      "example": 5
+    },
+
+    "fee_head_id": {
+      "type": "integer",
+      "example": 1
+    },
+
+    "amount": {
+      "type": "number",
+      "example": 2500
+    },
+
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "example": "2026-04-10"
+    },
+
+    "status": {
+      "type": "integer",
+      "enum": [
+        0,
+        1
+      ],
+      "example": 1
+    }
+  }
+},
+
+
+"FeePaymentInput": {
+  "type": "object",
+  "required": [
+    "student_id",
+    "fee_structure_id",
+    "amount_paid"
+  ],
+  "properties": {
+
+    "student_id": {
+      "type": "integer",
+      "example": 10
+    },
+
+    "fee_structure_id": {
+      "type": "integer",
+      "example": 2
+    },
+
+    "amount_paid": {
+      "type": "number",
+      "example": 1500
+    },
+
+    "payment_date": {
+      "type": "string",
+      "format": "date",
+      "example": "2026-04-05"
+    },
+
+    "payment_mode": {
+      "type": "string",
+      "enum": [
+        "Cash",
+        "Online",
+        "Cheque",
+        "UPI",
+        "Card"
+      ],
+      "example": "Cash"
+    },
+
+    "transaction_id": {
+      "type": "string",
+      "example": "TXN123456"
+    }
+  }
+},
+      "UploadResponse": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "example": "/uploads/images/student-123.jpg"
+          },
+          "fileName": {
+            "type": "string",
+            "example": "student-123.jpg"
+          },
+          "size": {
+            "type": "integer",
+            "example": 245678
+          },
+          "mimeType": {
+            "type": "string",
+            "example": "image/jpeg"
+          }
+        }
+      },"AcademicYearInput": {
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "example": 1,
+      "description": "Pass id for update"
+    },
+    "year_name": {
+      "type": "string",
+      "example": "2026-27"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "example": "2026-04-01"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "example": "2027-03-31"
+    },
+    "is_current": {
+      "type": "integer",
+      "enum": [
+        0,
+        1
+      ],
+      "example": 1
+    },
+    "status": {
+      "type": "integer",
+      "enum": [
+        0,
+        1
+      ],
+      "example": 1
+    }
+  }
+},
+
+
+"StudentPromotionInput": {
+  "type": "object",
+  "required": [
+    "student_ids",
+    "from_academic_year_id",
+    "to_academic_year_id",
+    "to_class_id"
+  ],
+  "properties": {
+
+    "student_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "example": [
+        10,
+        11,
+        12
+      ]
+    },
+
+    "from_academic_year_id": {
+      "type": "integer",
+      "example": 1
+    },
+
+    "to_academic_year_id": {
+      "type": "integer",
+      "example": 2
+    },
+
+    "to_class_id": {
+      "type": "integer",
+      "example": 24
+    },
+
+    "promoted_date": {
+      "type": "string",
+      "format": "date",
+      "example": "2027-04-01"
+    }
+
+  }
+},
+
+
+"StudentAcademicHistory": {
+  "type": "object",
+  "properties": {
+
+    "id": {
+      "type": "integer",
+      "example": 1
+    },
+
+    "student_id": {
+      "type": "integer",
+      "example": 10
+    },
+
+    "academic_year_id": {
+      "type": "integer",
+      "example": 1
+    },
+
+    "class_id": {
+      "type": "integer",
+      "example": 23
+    },
+
+    "section_id": {
+      "type": "integer",
+      "example": 9
+    },
+
+    "roll_no": {
+      "type": "integer",
+      "example": 101
+    },
+
+    "status": {
+      "type": "string",
+      "enum": [
+        "Studying",
+        "Passed",
+        "Failed",
+        "Transferred"
+      ],
+      "example": "Studying"
+    },
+
+    "promoted_to_class_id": {
+      "type": "integer",
+      "example": 24
+    },
+
+    "promoted_date": {
+      "type": "string",
+      "format": "date",
+      "example": "2027-04-01"
+    }
+
+  }
+},
+      "SettingInput": {
+        "type": "object",
+        "properties": {
+          "school_name": {
+            "type": "string",
+            "example": "VidyaSetu"
+          },
+          "tagline": {
+            "type": "string",
+            "example": "Education Excellence"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+1 (555) 234-8900"
+          },
+          "email": {
+            "type": "string",
+            "example": "admin@saharaacademy.edu"
+          },
+          "principal_name": {
+            "type": "string",
+            "example": "Dr. Evelyn Vance"
+          },
+          "affiliation_number": {
+            "type": "string",
+            "example": "CBSE-987412-AC"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "summary": "User Authentication Login API",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful, returns JWT token and user profile"
+          },
+          "400": {
+            "description": "Invalid input credentials"
+          },
+          "401": {
+            "description": "Unauthorized email or password"
+          }
+        }
+      }
+    },
+    "/api/students": {
+      "get": {
+        "summary": "View List of Students with Filter & Pagination",
+        "tags": [
+          "Students"
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "type": "string",
+            "description": "Search keyword"
+          },
+          {
+            "name": "grade",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by Grade"
+          },
+          {
+            "name": "section",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by Section"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by status (Active/Inactive)"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "integer",
+            "default": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "default": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved student roster list"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add or Single Upsert Student API (Supports Multipart File Upload)",
+        "tags": [
+          "Students"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentInput"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "grade": {
+                    "type": "string"
+                  },
+                  "section": {
+                    "type": "string"
+                  },
+                  "avatarFile": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Student created or updated successfully"
+          },
+          "400": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/students/{id}": {
+      "get": {
+        "summary": "View Single Student Record Details",
+        "tags": [
+          "Students"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student details retrieved"
+          },
+          "404": {
+            "description": "Student record not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update Existing Student Record",
+        "tags": [
+          "Students"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Student updated successfully"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Student Record API",
+        "tags": [
+          "Students"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student record deleted successfully"
+          },
+          "404": {
+            "description": "Student not found"
+          }
+        }
+      }
+    },
+    "/api/classes": {
+      "get": {
+        "summary": "Class List API with Pagination, Search and Sorting",
+        "tags": [
+          "Academic Classes"
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search class by name"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ],
+              "default": "ASC"
+            },
+            "description": "Sort by class order"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Class list retrieved successfully"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add or Update Class API (Single Upsert)",
+        "tags": [
+          "Academic Classes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "school_id",
+                  "class_name"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "example": 1,
+                    "description": "Pass id for update, omit for add"
+                  },
+                  "school_id": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "class_name": {
+                    "type": "string",
+                    "example": "Grade 10"
+                  },
+                  "class_order": {
+                    "type": "integer",
+                    "example": 10
+                  },
+                  "status": {
+                    "type": "integer",
+                    "enum": [
+                      0,
+                      1
+                    ],
+                    "example": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Class added or updated successfully"
+          },
+          "400": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/classes/{id}": {
+      "delete": {
+        "summary": "Delete Class API",
+        "tags": [
+          "Academic Classes"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Class ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Class deleted successfully"
+          },
+          "400": {
+            "description": "Class cannot be deleted because students or sections are assigned"
+          },
+          "404": {
+            "description": "Class not found"
+          }
+        }
+      }
+    },
+    "/api/sections": {
+      "get": {
+        "summary": "Section List API",
+        "tags": [
+          "Academic Sections"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of active sections retrieved"
+          }
+        }
+      }
+    },
+    "/api/upload/image": {
+  "post": {
+    "summary": "Upload Image API (Local Storage / S3 Ready)",
+    "tags": [
+      "File Upload"
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "multipart/form-data": {
+          "schema": {
+            "type": "object",
+            "required": [
+              "image"
+            ],
+            "properties": {
+              "image": {
+                "type": "string",
+                "format": "binary",
+                "description": "Upload image file (jpg, png, webp max 2MB)"
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Image uploaded successfully",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UploadResponse"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Invalid image file"
+      }
+    }
+  }
+},
+"/api/fees": {
+
+  "get": {
+    "summary": "Fee Head List API",
+    "tags": [
+      "Fees"
+    ],
+    "responses": {
+      "200": {
+        "description": "Fee heads retrieved successfully"
+      }
+    }
+  },
+
+
+  "post": {
+
+    "summary": "Add or Update Fee Head API",
+    "tags": [
+      "Fees"
+    ],
+
+    "requestBody": {
+      "required": true,
+
+      "content": {
+
+        "application/json": {
+
+          "schema": {
+            "$ref": "#/components/schemas/FeeHeadInput"
+          }
+
+        }
+
+      }
+
+    },
+
+    "responses": {
+
+      "200": {
+        "description": "Fee added or updated successfully"
+      }
+
+    }
+
+  }
+
+},
+"/api/fee-structures": {
+  "get": {
+    "summary": "Fee Structure List API",
+    "tags": [
+      "Fees"
+    ],
+    "responses": {
+      "200": {
+        "description": "Fee structures retrieved successfully"
+      }
+    }
+  },
+  "post": {
+    "summary": "Add or Update Fee Structure API",
+    "tags": [
+      "Fees"
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/FeeStructureInput"
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Fee structure saved successfully"
+      }
+    }
+  }
+},
+"/api/fee-payments": {
+  "get": {
+    "summary": "Fee Payment List API",
+    "tags": [
+      "Fees"
+    ],
+    "responses": {
+      "200": {
+        "description": "Payments retrieved successfully"
+      }
+    }
+  },
+  "post": {
+    "summary": "Collect Fee Payment API",
+    "tags": [
+      "Fees"
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/FeePaymentInput"
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Payment added successfully"
+      }
+    }
+  }
+},
+"/api/academic-years": {
+  "get": {
+    "summary": "Academic Year List API with Pagination, Search and Sorting",
+    "tags": [
+      "Academic Years"
+    ],
+    "parameters": [
+      {
+        "name": "search",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Search academic year"
+      },
+      {
+        "name": "page",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "default": 1
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "default": 10
+        }
+      },
+      {
+        "name": "sortBy",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "year_name",
+            "start_date",
+            "end_date",
+            "created_at"
+          ]
+        }
+      },
+      {
+        "name": "sortOrder",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "ASC",
+            "DESC"
+          ]
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Academic years retrieved successfully"
+      }
+    }
+  }
+},
+
+
+"/api/student-academic-history/promotion-list": {
+  "get": {
+    "summary": "Promotion Student List API",
+    "tags": [
+      "Student Promotion"
+    ],
+    "parameters": [
+      {
+        "name": "academic_year_id",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Current academic year ID"
+      },
+      {
+        "name": "class_id",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Current class ID"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Students available for promotion"
+      }
+    }
+  }
+},
+
+
+"/api/student-academic-history/promote": {
+  "post": {
+    "summary": "Promote Students API",
+    "tags": [
+      "Student Promotion"
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "required": [
+              "student_ids",
+              "from_academic_year_id",
+              "to_academic_year_id",
+              "to_class_id"
+            ],
+            "properties": {
+              "student_ids": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                },
+                "example": [
+                  1,
+                  2,
+                  3
+                ]
+              },
+              "from_academic_year_id": {
+                "type": "integer",
+                "example": 1
+              },
+              "to_academic_year_id": {
+                "type": "integer",
+                "example": 2
+              },
+              "to_class_id": {
+                "type": "integer",
+                "example": 24
+              },
+              "promoted_date": {
+                "type": "string",
+                "format": "date",
+                "example": "2027-04-01"
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Students promoted successfully"
+      },
+      "400": {
+        "description": "Invalid promotion data"
+      }
+    }
+  }
+},
+    "/api/settings": {
+      "get": {
+        "summary": "Get School System Settings",
+        "tags": [
+          "Settings"
+        ],
+        "responses": {
+          "200": {
+            "description": "Current school system configuration"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update School System Settings API",
+        "tags": [
+          "Settings"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings updated successfully"
+          }
+        }
+      }
+    }
+  }
+}
