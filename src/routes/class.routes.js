@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
+
 const controller = require("../controllers/class.controller");
 
 const pagination = require("../middlewares/pagination.middleware");
@@ -130,10 +131,33 @@ router.get("/:id", controller.getById);
  *         required: true
  *         schema:
  *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               school_id:
+ *                 type: integer
+ *                 example: 1
+ *               class_name:
+ *                 type: string
+ *                 example: Class 1
+ *               class_code:
+ *                 type: string
+ *                 example: CLS01
+ *               description:
+ *                 type: string
+ *                 example: Primary First Class
+ *               status:
+ *                 type: integer
+ *                 example: 1
  *     responses:
  *       200:
  *         description: Class updated successfully
  */
+
 router.put(
   "/:id",
   validate(updateClassSchema),

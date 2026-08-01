@@ -5,7 +5,7 @@ const controller = require("../controllers/student.controller");
 
 const pagination = require("../middlewares/pagination.middleware");
 const validate = require("../middlewares/validate.middleware");
-
+const upload = require("../utils/upload"); // 🔥 multer config
 const {
   createStudentSchema,
   updateStudentSchema
@@ -119,7 +119,7 @@ router.get("/", pagination, controller.getAll);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -163,13 +163,15 @@ router.get("/", pagination, controller.getAll);
  *                 example: M
  *               date_of_birth:
  *                 type: string
+ *                 format: date
  *                 example: 2012-01-01
  *               admission_date:
  *                 type: string
+ *                 format: date
  *                 example: 2024-04-01
  *               profile_image:
  *                 type: string
- *                 example: https://example.com/student.png
+ *                 format: binary
  *               address:
  *                 type: string
  *                 example: Bhopal, MP
@@ -179,9 +181,12 @@ router.get("/", pagination, controller.getAll);
  *     responses:
  *       201:
  *         description: Student created successfully
+ *       400:
+ *         description: Validation error
  */
 router.post(
   "/",
+ upload("student").single("profile_image"),
   validate(createStudentSchema),
   controller.create
 );
@@ -228,10 +233,11 @@ router.get("/:id", controller.getById);
  *         schema:
  *           type: integer
  *           example: 1
+ *
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -251,6 +257,13 @@ router.get("/:id", controller.getById);
  *                 type: string
  *               status:
  *                 type: integer
+ *               school_id:
+ *                 type: integer
+ *                 example: 1
+ *               profile_image:
+ *                 type: string
+ *                 format: binary
+ *
  *     responses:
  *       200:
  *         description: Student updated successfully
@@ -259,6 +272,7 @@ router.get("/:id", controller.getById);
  */
 router.put(
   "/:id",
+   upload("student").single("profile_image"),
   validate(updateStudentSchema),
   controller.update
 );

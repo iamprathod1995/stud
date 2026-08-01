@@ -119,7 +119,6 @@ router.post(
  *         description: Section fetched successfully
  */
 router.get("/:id", controller.getById);
-
 /**
  * @swagger
  * /api/sections/{id}:
@@ -132,10 +131,30 @@ router.get("/:id", controller.getById);
  *         required: true
  *         schema:
  *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               school_id:
+ *                 type: integer
+ *                 example: 1
+ *               class_id:
+ *                 type: integer
+ *                 example: 1
+ *               section_name:
+ *                 type: string
+ *                 example: A
+ *               status:
+ *                 type: integer
+ *                 example: 1
  *     responses:
  *       200:
  *         description: Section updated successfully
  */
+
 router.put(
   "/:id",
   validate(updateSectionSchema),

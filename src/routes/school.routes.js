@@ -5,7 +5,7 @@ const controller = require("../controllers/school.controller");
 
 const pagination = require("../middlewares/pagination.middleware");
 const validate = require("../middlewares/validate.middleware");
-const upload = require("../utils/upload"); // 🔥 multer config
+const createUploader = require("../utils/upload"); // 🔥 multer config
 const {
   createSchoolSchema
 } = require("../validations/school.validation");
@@ -147,7 +147,7 @@ router.get("/", pagination, controller.getAll);
  */
 router.post(
   "/",
-  upload.single("school_logo"),  // 🔥 MUST BE FIRST
+  createUploader("school").single("school_logo"),
   validate(createSchoolSchema),
   controller.create
 );
@@ -186,7 +186,7 @@ router.get("/:id", controller.getById);
  * @swagger
  * /api/schools/{id}:
  *   put:
- *     summary: Update School
+ *     summary: Update School (with optional image upload)
  *     tags: [Schools]
  *     parameters:
  *       - in: path
@@ -196,10 +196,11 @@ router.get("/:id", controller.getById);
  *           type: integer
  *           example: 1
  *         description: School ID
+ *
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -211,26 +212,29 @@ router.get("/:id", controller.getById);
  *                 example: Rahul Sharma
  *               school_logo:
  *                 type: string
- *                 example: https://example.com/logo.png
+ *                 format: binary
+ *                 description: Upload new school logo
  *               contact_number:
  *                 type: string
  *                 example: 9876543210
- *               email:
- *                 type: string
- *                 example: abc@gmail.com
  *               address:
  *                 type: string
  *                 example: Village Huzurganj, MP
  *               status:
  *                 type: integer
  *                 example: 1
+ *
  *     responses:
  *       200:
  *         description: School updated successfully
  *       404:
  *         description: School not found
  */
-router.put("/:id", controller.update);
+router.put(
+  "/:id",
+  createUploader("school").single("school_logo"),
+  controller.update
+);
 
 //////////////////////////////////////////////////////
 // 📌 DELETE SCHOOL

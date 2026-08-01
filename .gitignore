@@ -15,6 +15,7 @@ yarn-error.log*
 # Build output
 dist/
 build/
+upload/
 
 # Coverage reports
 coverage/

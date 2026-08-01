@@ -1,10 +1,26 @@
 const { Student, School, Class, Section } = require("../models");
 const { Op } = require("sequelize");
+const fs = require("fs");
+const path = require("path");
 
 /**
  * CREATE STUDENT
  */
 exports.create = async (payload) => {
+
+  // Check duplicate admission number
+  const existingStudent = await Student.findOne({
+    where: {
+      admission_no: payload.admission_no
+    }
+  });
+
+  if (existingStudent) {
+    throw new Error(
+      `Admission No '${payload.admission_no}' already exists`
+    );
+  }
+
   const student = await Student.create({
     school_id: payload.school_id,
     student_name: payload.student_name,
@@ -26,6 +42,7 @@ exports.create = async (payload) => {
 
   return student;
 };
+
 
 /**
  * GET ALL STUDENTS
@@ -143,13 +160,51 @@ exports.update = async (id, payload) => {
     throw new Error("Student not found");
   }
 
-  await Student.update(payload, {
-    where: { id }
+  // Admission No duplicate check
+  if (
+    payload.admission_no &&
+    payload.admission_no !== student.admission_no
+  ) {
+    const existingStudent = await Student.findOne({
+      where: {
+        admission_no: payload.admission_no,
+        id: {
+          [Op.ne]: id
+        }
+      }
+    });
+
+    if (existingStudent) {
+      throw new Error(
+        `Admission No '${payload.admission_no}' already exists`
+      );
+    }
+  }
+
+  
+
+  await student.update(payload);
+
+  return await Student.findByPk(id, {
+    include: [
+      {
+        model: School,
+        as: "school",
+        attributes: ["id", "school_name"]
+      },
+      {
+        model: Class,
+        as: "class",
+        attributes: ["id", "class_name"]
+      },
+      {
+        model: Section,
+        as: "section",
+        attributes: ["id", "section_name"]
+      }
+    ]
   });
-
-  return await Student.findByPk(id);
 };
-
 /**
  * DELETE STUDENT
  */
@@ -160,8 +215,24 @@ exports.delete = async (id) => {
     throw new Error("Student not found");
   }
 
+  const folderPath = path.join(
+    process.cwd(),
+    "uploads",
+    "schools",
+    `school_${student.school_id}`,
+    "Students",
+    `student_${student.id}`
+  );
+
+  if (fs.existsSync(folderPath)) {
+    fs.rmSync(folderPath, {
+      recursive: true,
+      force: true
+    });
+  }
+
   await Student.destroy({
-    where: { id }
+    where: { id: student.id }
   });
 
   return true;
