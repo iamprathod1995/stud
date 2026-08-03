@@ -55,7 +55,7 @@ async function runSeed() {
 
     // 3. Seed Users (Roles: 1 = Super Admin, 2 = School Admin)
     console.log('[3/7] Seeding Users...');
-    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const hashedPassword = await bcrypt.hash('Admin@#123', 10);
     
     // Super Admin
     await connection.execute(

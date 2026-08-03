@@ -1,0 +1,33 @@
+# Server Configuration
+PORT=3005
+NODE_ENV=development
+
+# MySQL Database Credentials 
+#https://auth-db1881.hstgr.io/index.php?route=/table/structure&db=u730685899_managecampus&table=sections
+DB_HOST=indorewholesale.in
+DB_USER=u730685899_managecampus
+DB_PASSWORD='SchooolManage@#$123'
+DB_NAME=u730685899_managecampus
+DB_PORT=3306
+DB_CONNECTION_LIMIT=10
+
+# JWT Authentication Secret & Expiry
+JWT_SECRET=sahara_academy_super_secret_jwt_key_2026
+JWT_EXPIRES_IN=1d
+
+
+#VITE_API_URL=http://localhost:3005
+
+VITE_API_URL=http://schoolsanchalan.com
+
+# File Storage Strategy: 'local' OR 's3'
+STORAGE_TYPE=local
+
+# Local File Upload Path (relative to backend directory)
+UPLOAD_PATH=public/uploads
+
+# AWS S3 Storage Credentials (Required if STORAGE_TYPE=s3)
+AWS_ACCESS_KEY_ID=your_aws_access_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+AWS_REGION=us-east-1
+AWS_S3_BUCKET_NAME=sahara-academy-uploads
