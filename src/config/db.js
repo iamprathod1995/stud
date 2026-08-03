@@ -34,4 +34,26 @@ export const query = async (sql, params = []) => {
   return rows;
 };
 
+export const checkDatabaseConnection = async () => {
+  try {
+    const connection = await pool.getConnection();
+    await connection.ping();
+    connection.release();
+
+    logger.info('✅ MySQL Database Connected Successfully');
+    return true;
+
+  } catch (err) {
+    logger.error('❌ Database Connection Error');
+    logger.error(`Message: ${err.message}`);
+    logger.error(`Code: ${err.code}`);
+    logger.error(`Host: ${process.env.DB_HOST}`);
+    logger.error(`Database: ${process.env.DB_NAME}`);
+    return false;
+  }
+};
+
+
 export default pool;
+
+

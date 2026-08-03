@@ -1,12 +1,19 @@
 import app from './app.js';
 import dotenv from 'dotenv';
 import { logger } from './utils/logger.js';
+import { checkDatabaseConnection } from './config/db.js';
 
 dotenv.config();
 
 const PORT = process.env.PORT || 3005;
 const HOST = '0.0.0.0';
 
+  const dbConnected = await checkDatabaseConnection();
+
+  if (!dbConnected) {
+    logger.error('Database connection failed. Server stopped.');
+    process.exit(1);
+  }
 app.listen(PORT, HOST, () => {
   logger.info(`=======================================================`);
   logger.info(` VidyaSetu Node.js Backend Server Active `);
