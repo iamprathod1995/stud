@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://violet-cat-282913.hostingersite.com",
+      "url": "http://localhost:3005",
       "description": "Local & Cloud Run Server"
     }
   ],
