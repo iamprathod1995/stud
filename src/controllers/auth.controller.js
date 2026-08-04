@@ -18,3 +18,17 @@ export const getMe = async (req, res) => {
 export const logout = async (req, res) => {
   return sendResponse(res, 200, true, 'Successfully logged out');
 };
+
+// Naya changePassword controller
+export const changePassword = async (req, res, next) => {
+  try {
+    const userId = req.user?.id; // Auth middleware se milti hai
+    const { oldPassword, newPassword } = req.body;
+
+    const result = await authService.changePassword(userId, oldPassword, newPassword);
+    
+    return sendResponse(res, 200, true, result.message);
+  } catch (error) {
+    next(error);
+  }
+};

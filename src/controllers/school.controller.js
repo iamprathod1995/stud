@@ -43,3 +43,29 @@ export const deleteSchool = async (req, res, next) => {
     next(error);
   }
 };
+
+
+export const getDashboardStats = async (req, res) => {
+  try {
+    // req.user middleware se mil raha hai jisme school_id available hai
+    const user = req.user;
+
+    if (!user || !user.school_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Unauthorized or School ID missing in token"
+      });
+    }
+
+    const result = await schoolService.getDashboardStatsData(user);
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Dashboard Controller Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error while fetching dashboard data",
+      error: error.message
+    });
+  }
+};

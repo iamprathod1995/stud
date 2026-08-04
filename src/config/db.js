@@ -27,11 +27,17 @@ try {
  * Safe database query executor wrapping pool connection.
  */
 export const query = async (sql, params = []) => {
-  if (!pool) {
-    throw new Error('Database pool is not initialized');
+  try {
+    console.log("SQL:", sql);
+    console.log("PARAMS:", params);
+
+    const [rows] = await pool.execute(sql, params);
+    return rows;
+  } catch (err) {
+    console.log("FAILED SQL:", sql);
+    console.log("FAILED PARAMS:", params);
+    throw err;
   }
-  const [rows] = await pool.execute(sql, params);
-  return rows;
 };
 
 export const checkDatabaseConnection = async () => {

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { listSchools, getSchool, saveSchool, deleteSchool } from '../controllers/school.controller.js';
+import { listSchools, getSchool, saveSchool, deleteSchool, getDashboardStats } from '../controllers/school.controller.js';
 import { authenticateToken, authorizeRoles } from '../middlewares/auth.middleware.js';
 
 const router = Router();
@@ -11,6 +11,7 @@ router.get('/:id', getSchool);
 // router.post('/', authorizeRoles('Super Administrator'), saveSchool);
 router.post('/', saveSchool);
 router.put('/:id', saveSchool);
+
 router.delete('/:id', authorizeRoles('Super Administrator'), deleteSchool);
 
 export default router;

@@ -157,6 +157,9 @@ async function runMigration() {
         joining_date DATE,
         mobile VARCHAR(20),
         address TEXT,
+        dob DATE NULL,
+        gender VARCHAR(20) NULL,
+        blood_group VARCHAR(30) NULL,
         photo VARCHAR(255),
         status TINYINT DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -188,25 +191,7 @@ async function runMigration() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
-    // 9. TEACHER CLASS MAPPING
-    console.log("Creating teacher_class_mapping table...");
-    await connection.query(`
-      CREATE TABLE IF NOT EXISTS teacher_class_mapping (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        teacher_id INT NOT NULL,
-        class_id INT NOT NULL,
-        section_id INT NULL,
-        academic_year_id INT NOT NULL,
-        subject_id INT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
-        FOREIGN KEY(class_id) REFERENCES classes(id) ON DELETE CASCADE,
-        FOREIGN KEY(section_id) REFERENCES sections(id) ON DELETE SET NULL,
-        FOREIGN KEY(academic_year_id) REFERENCES academic_years(id) ON DELETE CASCADE
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-    `);
-
-    // 10. SUBJECTS
+    // 10. SUBJECTS (Moved up as referenced in teacher_class_mapping)
     console.log("Creating subjects table...");
     await connection.query(`
       CREATE TABLE IF NOT EXISTS subjects (
@@ -217,6 +202,32 @@ async function runMigration() {
         status TINYINT DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(school_id) REFERENCES schools(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    // 9. TEACHER CLASS MAPPING
+    console.log("Creating teacher_class_mapping table...");
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS teacher_class_mapping (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        teacher_id INT NOT NULL,
+        class_id INT NOT NULL,
+        section_id INT NULL,
+        academic_year_id INT NOT NULL,
+        subject_id INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
+        FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
+        FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE SET NULL,
+        FOREIGN KEY (academic_year_id) REFERENCES academic_years(id) ON DELETE CASCADE,
+        FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+        UNIQUE KEY unique_teacher_assignment (
+            teacher_id,
+            class_id,
+            section_id,
+            academic_year_id,
+            subject_id
+        )
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
@@ -241,7 +252,7 @@ async function runMigration() {
         student_id INT NOT NULL,
         academic_year_id INT NOT NULL,
         attendance_date DATE NOT NULL,
-        status ENUM('Present', 'Absent', 'Leave') DEFAULT 'Present',
+        status ENUM('Present', 'Absent', 'Leave','Holiday') DEFAULT 'Present',
         remarks VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(student_id) REFERENCES students(id) ON DELETE CASCADE,
@@ -250,16 +261,92 @@ async function runMigration() {
     `);
 
     // 13. TEACHER ATTENDANCE
+  // 13. TEACHER ATTENDANCE
     console.log("Creating teacher_attendance table...");
     await connection.query(`
       CREATE TABLE IF NOT EXISTS teacher_attendance (
         id INT AUTO_INCREMENT PRIMARY KEY,
         teacher_id INT NOT NULL,
+        school_id INT NOT NULL,
+        academic_year_id INT NOT NULL,
         attendance_date DATE NOT NULL,
-        status ENUM('Present', 'Absent', 'Leave') DEFAULT 'Present',
+        status ENUM(
+            'Present',
+            'Absent',
+            'Leave',
+            'Late',
+            'Half Day'
+        ) DEFAULT 'Present',
+        punch_in DATETIME NULL,
+        punch_out DATETIME NULL,
+        total_work_minutes INT DEFAULT 0,
+        late_minutes INT DEFAULT 0,
+        overtime_minutes INT DEFAULT 0,
         remarks VARCHAR(255),
+        created_by INT NULL,
+        updated_by INT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(teacher_id) REFERENCES teachers(id) ON DELETE CASCADE
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
+        FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE CASCADE,
+        FOREIGN KEY (academic_year_id) REFERENCES academic_years(id) ON DELETE CASCADE,
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL,
+        UNIQUE KEY unique_teacher_date (teacher_id, attendance_date),
+        INDEX idx_teacher (teacher_id),
+        INDEX idx_school (school_id),
+        INDEX idx_date (attendance_date)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    // Safety check: Agar table pehle se bani ho aur naye columns missing ho toh ye add kar dega
+    console.log("Ensuring columns exist in teacher_attendance table...");
+    await connection.query(`
+      ALTER TABLE teacher_attendance 
+      ADD COLUMN IF NOT EXISTS punch_in DATETIME NULL,
+      ADD COLUMN IF NOT EXISTS punch_out DATETIME NULL,
+      ADD COLUMN IF NOT EXISTS total_work_minutes INT DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS late_minutes INT DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS overtime_minutes INT DEFAULT 0;
+    `);
+
+    // TEACHER ATTENDANCE LOGS
+    console.log("Creating teacher_attendance_logs table...");
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS teacher_attendance_logs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        attendance_id INT NULL,
+        teacher_id INT NOT NULL,
+        school_id INT NOT NULL,
+        action ENUM(
+            'Punch In',
+            'Punch Out'
+        ) NOT NULL,
+        action_time DATETIME NOT NULL,
+        latitude DECIMAL(10,8) NULL,
+        longitude DECIMAL(11,8) NULL,
+        accuracy DECIMAL(8,2) NULL,
+        address TEXT NULL,
+        photo VARCHAR(255) NULL,
+        device_id VARCHAR(255) NULL,
+        device_name VARCHAR(150) NULL,
+        device_os VARCHAR(100) NULL,
+        app_version VARCHAR(30) NULL,
+        battery_level TINYINT NULL,
+        network_type VARCHAR(30) NULL,
+        ip_address VARCHAR(50) NULL,
+        is_mock_location TINYINT DEFAULT 0,
+        is_fake_location TINYINT DEFAULT 0,
+        face_score DECIMAL(5,2) DEFAULT NULL,
+        liveness_score DECIMAL(5,2) DEFAULT NULL,
+        remarks VARCHAR(255) NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (attendance_id) REFERENCES teacher_attendance(id) ON DELETE SET NULL,
+        FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
+        FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE CASCADE,
+        INDEX idx_teacher (teacher_id),
+        INDEX idx_action_time (action_time),
+        INDEX idx_attendance (attendance_id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
@@ -312,7 +399,7 @@ async function runMigration() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
-    // 17. FEE STRUCTURES (ADDED)
+    // 17. FEE STRUCTURES
     console.log("Creating fee_structures table...");
     await connection.query(`
       CREATE TABLE IF NOT EXISTS fee_structures (
@@ -448,3 +535,37 @@ async function runMigration() {
 }
 
 runMigration();
+
+
+// ALTER TABLE schools CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE users CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE academic_years CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE classes CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE sections CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE students CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE teachers CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE student_academic_history CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE subjects CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE teacher_class_mapping CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE class_subjects CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE attendance CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE teacher_attendance CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE teacher_attendance_logs CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE exams CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE marks CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE fee_heads CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE fee_structures CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE student_fees CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE fee_payments CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE school_settings CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+
+
+
+
+
+
+
+// ALTER TABLE teachers CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE users CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+// ALTER TABLE teacher_attendance CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

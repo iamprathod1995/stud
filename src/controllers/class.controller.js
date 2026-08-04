@@ -27,3 +27,27 @@ export const removeClass = async(req,res,next)=>{
     next(error);
   }
 };
+
+export const getSectionsByClassController = async (req, res, next) => {
+  try {
+    const result = await classService.getSectionsByClass(req.query, req.user);
+    return res.status(200).json({
+      success: true,
+      ...result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSubjectsByClassController = async (req, res, next) => {
+  try {
+    const result = await classService.getSubjectsByClass(req.query, req.user);
+    return res.status(200).json({
+      success: true,
+      ...result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
