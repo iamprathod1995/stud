@@ -13,27 +13,46 @@ export const saveTeacherPunchIn = async (data, user) => {
   if (!activeYear.length) throw new Error("Active academic year not found");
   const academic_year_id = activeYear[0].id;
 
-  let attendance = await query(`SELECT id, punch_in FROM teacher_attendance WHERE teacher_id = ? AND attendance_date = ?`, [teacher_id, today]);
+  // Check karein kya aaj ke liye main attendance record bana hai ya nahi
+  let attendance = await query(
+    `SELECT id FROM teacher_attendance WHERE teacher_id = ? AND attendance_date = ?`, 
+    [teacher_id, today]
+  );
+
   let attendanceId;
 
   if (attendance.length > 0) {
-    if (attendance[0].punch_in) throw new Error("Already punched in for today");
     attendanceId = attendance[0].id;
-    await query(`UPDATE teacher_attendance SET punch_in = NOW(), status = 'Present' WHERE id = ?`, [attendanceId]);
   } else {
-    const result = await query(`
+    // Agar aaj ka pehla punch-in hai toh main table mein entry banayein
+    const attResult = await query(`
       INSERT INTO teacher_attendance (teacher_id, school_id, academic_year_id, attendance_date, status, punch_in, created_by)
       VALUES (?, ?, ?, ?, 'Present', NOW(), ?)
     `, [teacher_id, school_id, academic_year_id, today, user.id]);
-    attendanceId = result.insertId;
+    attendanceId = attResult.insertId;
   }
 
+  // Check karein ki abhi current status kya hai (Aakhiri action 'Punch In' toh nahi hai)
+  const lastLog = await query(
+    `SELECT action FROM teacher_attendance_logs WHERE teacher_id = ? AND DATE(action_time) = ? ORDER BY id DESC LIMIT 1`,
+    [teacher_id, today]
+  );
+
+  if (lastLog.length > 0 && lastLog[0].action === 'Punch In') {
+    throw new Error("You are already punched in. Please punch out first.");
+  }
+
+  // Logs table mein 'Punch In' insert karein
   await query(`
     INSERT INTO teacher_attendance_logs (
-      attendance_id, teacher_id, school_id, action, action_time, latitude, longitude, accuracy, address, photo, device_id, device_name, device_os, app_version, battery_level, network_type, ip_address, is_mock_location, face_score, liveness_score, remarks
-    ) VALUES (?, ?, ?, 'Punch In', NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      attendance_id, teacher_id, school_id, action, action_time, latitude, longitude, accuracy, address, photo, device_id, device_name, device_os, app_version, battery_level, network_type, ip_address, is_mock_location, is_fake_location, face_score, liveness_score, remarks
+    ) VALUES (?, ?, ?, 'Punch In', NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `, [
-    attendanceId, teacher_id, school_id, data.latitude || null, data.longitude || null, data.accuracy || null, data.address || null, data.photo || null, data.device_id || null, data.device_name || null, data.device_os || null, data.app_version || null, data.battery_level || null, data.network_type || null, data.ip_address || null, data.is_mock_location || 0, data.face_score || null, data.liveness_score || null, data.remarks || null
+    attendanceId, teacher_id, school_id, 
+    data.latitude || null, data.longitude || null, data.accuracy || null, data.address || null, 
+    data.photo || null, data.device_id || null, data.device_name || null, data.device_os || null, 
+    data.app_version || null, data.battery_level || null, data.network_type || null, data.ip_address || null, 
+    data.is_mock_location || 0, data.is_fake_location || 0, data.face_score || null, data.liveness_score || null, data.remarks || null
   ]);
 
   return { message: "Punched in successfully" };
@@ -48,26 +67,50 @@ export const saveTeacherPunchOut = async (data, user) => {
   const school_id = teacherQuery[0].school_id;
   const today = new Date().toISOString().split('T')[0];
 
-  const attendance = await query(`SELECT id, punch_in FROM teacher_attendance WHERE teacher_id = ? AND attendance_date = ?`, [teacher_id, today]);
-  if (!attendance.length || !attendance[0].punch_in) throw new Error("You have not punched in yet today");
+  // Attendance ID dhoondhein
+  const attendance = await query(
+    `SELECT id FROM teacher_attendance WHERE teacher_id = ? AND attendance_date = ?`, 
+    [teacher_id, today]
+  );
+
+  if (!attendance.length) {
+    throw new Error("You have not punched in yet today.");
+  }
 
   const attendanceId = attendance[0].id;
 
-  await query(`
-    UPDATE teacher_attendance SET punch_out = NOW(), total_work_minutes = TIMESTAMPDIFF(MINUTE, punch_in, NOW()) WHERE id = ?
-  `, [attendanceId]);
+  // Check karein ki aakhiri action 'Punch In' tha ya nahi
+  const lastLog = await query(
+    `SELECT action FROM teacher_attendance_logs WHERE teacher_id = ? AND DATE(action_time) = ? ORDER BY id DESC LIMIT 1`,
+    [teacher_id, today]
+  );
 
+  if (!lastLog.length || lastLog[0].action !== 'Punch In') {
+    throw new Error("You are not currently punched in.");
+  }
+
+  // Logs table mein 'Punch Out' insert karein
   await query(`
     INSERT INTO teacher_attendance_logs (
-      attendance_id, teacher_id, school_id, action, action_time, latitude, longitude, accuracy, address, photo, device_id, device_name, device_os, app_version, battery_level, network_type, ip_address, is_mock_location, remarks
-    ) VALUES (?, ?, ?, 'Punch Out', NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      attendance_id, teacher_id, school_id, action, action_time, latitude, longitude, accuracy, address, photo, device_id, device_name, device_os, app_version, battery_level, network_type, ip_address, is_mock_location, is_fake_location, remarks
+    ) VALUES (?, ?, ?, 'Punch Out', NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `, [
-    attendanceId, teacher_id, school_id, data.latitude || null, data.longitude || null, data.accuracy || null, data.address || null, data.photo || null, data.device_id || null, data.device_name || null, data.device_os || null, data.app_version || null, data.battery_level || null, data.network_type || null, data.ip_address || null, data.is_mock_location || 0, data.remarks || null
+    attendanceId, teacher_id, school_id, 
+    data.latitude || null, data.longitude || null, data.accuracy || null, data.address || null, 
+    data.photo || null, data.device_id || null, data.device_name || null, data.device_os || null, 
+    data.app_version || null, data.battery_level || null, data.network_type || null, data.ip_address || null, 
+    data.is_mock_location || 0, data.is_fake_location || 0, data.remarks || null
   ]);
+
+  // Optional: Main table mein punch_out update kar sakte hain (agar aakhiri punch out ho)
+  await query(`
+    UPDATE teacher_attendance 
+    SET punch_out = NOW() 
+    WHERE id = ?
+  `, [attendanceId]);
 
   return { message: "Punched out successfully" };
 };
-
 // ================= MOBILE APP: GET LOGGED-IN TEACHER ATTENDANCE DETAIL =================
 export const getMyTeacherAttendanceDetail = async (params, user) => {
   const school_id = Number(user.school_id);
