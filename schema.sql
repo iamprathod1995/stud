@@ -84,6 +84,10 @@ CREATE TABLE IF NOT EXISTS `school_settings` (
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE INDEX IF NOT EXISTS `idx_users_email` ON `users` (`email`);
+CREATE INDEX IF NOT EXISTS `idx_students_email` ON `students` (`email`);
+CREATE INDEX IF NOT EXISTS `idx_sections_class_id` ON `sections` (`class_id`);
+CREATE INDEX IF NOT EXISTS `idx_classes_status` ON `classes` (`status`);
 
 -- ============================================================
 -- INITIAL SEED DATA

@@ -16,11 +16,11 @@ import feeRoutes from './routes/fee.routes.js';
 import schoolRoutes from './routes/school.routes.js';
 
 import teacherRoutes from './routes/teacher.routes.js';
+import teacherMobileRoutes from './routes/teacher-mobile.routes.js'; // <-- Naya Mobile Routes Import Kiya Gaya
 import subjectRoutes from './routes/subject.routes.js';
 import teacherMappingRoutes from './routes/teacherMapping.routes.js';
 import classSubjectRoutes from './routes/classSubject.routes.js';
 import dashboardRoutes from './routes/dashboard.routes.js';
-
 
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware.js';
 import { logger } from './utils/logger.js';
@@ -67,30 +67,28 @@ app.use('/api/classes', classRoutes);
 app.use('/api/sections', sectionRoutes);
 app.use('/api/schools', schoolRoutes);
 app.use('/api/academic-years', academicYearRoutes);
-app.use("/api/fees", feeRoutes);
+app.use('/api/fees', feeRoutes);
 
-// New Routes Added (Teachers, Subjects & Teacher Mappings)
+// Teachers & Mobile App Routes
 app.use('/api/teachers', teacherRoutes);
+app.use('/api/teachers-mobile', teacherMobileRoutes); 
 app.use('/api/subjects', subjectRoutes);
 app.use('/api/teacher-mappings', teacherMappingRoutes);
-
-// Ye naya route add karein:
 app.use('/api/class-subjects', classSubjectRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-
-
 
 app.use(
   '/api/student-academic-history',
   studentAcademicHistoryRoutes
 );
 app.use(
-  "/uploads",
+  '/uploads',
   express.static(
-    path.join(process.cwd(), "uploads")
+    path.join(process.cwd(), 'uploads')
   )
 );
-app.use("/api/upload", uploadRoutes);
+app.use('/api/upload', uploadRoutes);
+
 // Centralized Error Handling Middlewares
 app.use(notFoundHandler);
 app.use(errorHandler);

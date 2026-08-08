@@ -32,3 +32,14 @@ export const changePassword = async (req, res, next) => {
     next(error);
   }
 };
+
+
+export const teacherlogin = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const result = await authService.loginTeacher(email, password);
+    return sendResponse(res, 200, true, 'Login successful', result);
+  } catch (error) {
+    next(error);
+  }
+};
