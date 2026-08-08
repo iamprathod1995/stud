@@ -175,3 +175,75 @@ export const getMyTeacherAttendanceDetail = async (params, user) => {
     attendance,
   };
 };
+
+
+// ================= MOBILE APP: GET TODAY PUNCH HISTORY & TOTAL CALCULATION =================
+export const getTodayTeacherPunchHistory = async (params, user) => {
+  const school_id = Number(user.school_id);
+
+  const teacherQuery = await query(`SELECT id FROM teachers WHERE user_id = ? AND school_id = ? LIMIT 1`, [user.id, school_id]);
+  if (!teacherQuery.length) throw new Error("Teacher profile not found");
+  const teacher_id = teacherQuery[0].id;
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const attendanceResult = await query(
+    `SELECT id, attendance_date, status, punch_in, punch_out, total_work_minutes, late_minutes, overtime_minutes, remarks 
+     FROM teacher_attendance 
+     WHERE teacher_id = ? AND attendance_date = ? LIMIT 1`,
+    [teacher_id, today]
+  );
+
+  const logs = await query(
+    `SELECT id, action, action_time, latitude, longitude, address, photo, device_name, remarks 
+     FROM teacher_attendance_logs 
+     WHERE teacher_id = ? AND DATE(action_time) = ? 
+     ORDER BY action_time ASC`,
+    [teacher_id, today]
+  );
+
+  let totalWorkMinutes = 0;
+  let currentPunchInTime = null;
+  const formattedSessions = [];
+
+  for (let i = 0; i < logs.length; i++) {
+    const log = logs[i];
+    if (log.action === 'Punch In') {
+      currentPunchInTime = new Date(log.action_time);
+    } else if (log.action === 'Punch Out' && currentPunchInTime) {
+      const punchOutTime = new Date(log.action_time);
+      const diffMs = punchOutTime - currentPunchInTime;
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      
+      totalWorkMinutes += diffMins;
+      formattedSessions.push({
+        punch_in: currentPunchInTime,
+        punch_out: punchOutTime,
+        duration_minutes: diffMins
+      });
+
+      currentPunchInTime = null;
+    }
+  }
+
+  let isPunchedIn = false;
+  if (logs.length > 0 && logs[logs.length - 1].action === 'Punch In') {
+    isPunchedIn = true;
+  }
+
+  const hours = Math.floor(totalWorkMinutes / 60);
+  const minutes = totalWorkMinutes % 60;
+
+  return {
+    success: true,
+    data: {
+      date: today,
+      is_punched_in: isPunchedIn,
+      total_work_minutes: totalWorkMinutes,
+      total_work_formatted: `${hours} hours ${minutes} minutes`,
+      attendance_summary: attendanceResult.length > 0 ? attendanceResult[0] : null,
+      sessions: formattedSessions,
+      logs: logs
+    }
+  };
+};

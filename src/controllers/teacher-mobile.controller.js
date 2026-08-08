@@ -21,3 +21,12 @@ export const getMyAttendanceDetailMobile = async (req, res, next) => {
     return sendResponse(res, 200, true, 'Teacher attendance detail fetched successfully', data);
   } catch (error) { next(error); }
 };
+
+
+// ================= MOBILE APP: GET TODAY PUNCH HISTORY & TOTAL CALCULATION =================
+export const getTodayTeacherPunchHistoryMobile = async (req, res, next) => {
+  try {
+    const data = await teacherMobileService.getTodayTeacherPunchHistory(req.query, req.user);
+    return sendResponse(res, 200, true, 'Today punch history fetched successfully', data);
+  } catch (error) { next(error); }
+};
