@@ -1,6 +1,7 @@
 import { query } from '../config/db.js';
 
 // ================= MOBILE APP: PUNCH IN =================
+// ================= MOBILE APP: PUNCH IN =================
 export const saveTeacherPunchIn = async (data, user) => {
   const teacherQuery = await query(`SELECT id, school_id FROM teachers WHERE user_id = ?`, [user.id]);
   if (!teacherQuery.length) throw new Error("Teacher profile not found");
@@ -9,11 +10,21 @@ export const saveTeacherPunchIn = async (data, user) => {
   const school_id = teacherQuery[0].school_id;
   const today = new Date().toISOString().split('T')[0];
 
+  // 1. Sabse pehle check karein ki aakhiri action kya tha (Pehle check karna zaroori hai)
+  const lastLog = await query(
+    `SELECT action FROM teacher_attendance_logs WHERE teacher_id = ? AND DATE(action_time) = ? ORDER BY id DESC LIMIT 1`,
+    [teacher_id, today]
+  );
+
+  if (lastLog.length > 0 && lastLog[0].action === 'Punch In') {
+    throw new Error("You are already punched in. Please punch out first.");
+  }
+
   const activeYear = await query(`SELECT id FROM academic_years WHERE school_id = ? AND is_current = 1 LIMIT 1`, [school_id]);
   if (!activeYear.length) throw new Error("Active academic year not found");
   const academic_year_id = activeYear[0].id;
 
-  // Check karein kya aaj ke liye main attendance record bana hai ya nahi
+  // 2. Attendance record dhoondhein ya create karein
   let attendance = await query(
     `SELECT id FROM teacher_attendance WHERE teacher_id = ? AND attendance_date = ?`, 
     [teacher_id, today]
@@ -24,7 +35,6 @@ export const saveTeacherPunchIn = async (data, user) => {
   if (attendance.length > 0) {
     attendanceId = attendance[0].id;
   } else {
-    // Agar aaj ka pehla punch-in hai toh main table mein entry banayein
     const attResult = await query(`
       INSERT INTO teacher_attendance (teacher_id, school_id, academic_year_id, attendance_date, status, punch_in, created_by)
       VALUES (?, ?, ?, ?, 'Present', NOW(), ?)
@@ -32,17 +42,7 @@ export const saveTeacherPunchIn = async (data, user) => {
     attendanceId = attResult.insertId;
   }
 
-  // Check karein ki abhi current status kya hai (Aakhiri action 'Punch In' toh nahi hai)
-  const lastLog = await query(
-    `SELECT action FROM teacher_attendance_logs WHERE teacher_id = ? AND DATE(action_time) = ? ORDER BY id DESC LIMIT 1`,
-    [teacher_id, today]
-  );
-
-  if (lastLog.length > 0 && lastLog[0].action === 'Punch In') {
-    throw new Error("You are already punched in. Please punch out first.");
-  }
-
-  // Logs table mein 'Punch In' insert karein
+  // 3. Logs table mein 'Punch In' insert karein
   await query(`
     INSERT INTO teacher_attendance_logs (
       attendance_id, teacher_id, school_id, action, action_time, latitude, longitude, accuracy, address, photo, device_id, device_name, device_os, app_version, battery_level, network_type, ip_address, is_mock_location, is_fake_location, face_score, liveness_score, remarks
