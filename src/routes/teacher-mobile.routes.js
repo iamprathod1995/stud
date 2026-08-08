@@ -12,8 +12,8 @@ const router = Router();
 // Dono middlewares lagaye hain: Token check + Role 4 (Teacher) check
 router.use(authenticateToken, isTeacher);
 
-router.post('/attendance/punch-in', punchInTeacherMobile);
-router.post('/attendance/punch-out', punchOutTeacherMobile);
-router.get('/attendance/my-detail', getMyAttendanceDetailMobile);
+router.post('/mobile-attendance/punch-in', punchInTeacherMobile);
+router.post('/mobile-attendance/punch-out', punchOutTeacherMobile);
+router.get('/mobile-attendance/my-detail', getMyAttendanceDetailMobile);
 
 export default router;
