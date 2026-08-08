@@ -129,11 +129,14 @@ export const loginTeacher = async (email, password) => {
   let user;
 
   try {
+    // Teachers table ko JOIN karke teacher_id aur extra details fetch kar rahe hain
     const rows = await query(
       `SELECT u.id, u.name, u.school_id, u.email, u.password, u.role, u.avatar, u.status,
-              s.school_name, s.logo AS school_logo, s.phone AS school_phone, s.city AS school_city
+              s.school_name, s.logo AS school_logo, s.phone AS school_phone, s.city AS school_city,
+              t.id AS teacher_id, t.employee_code, t.qualification, t.designation, t.mobile AS teacher_mobile
        FROM users u
        LEFT JOIN schools s ON u.school_id = s.id
+       LEFT JOIN teachers t ON t.user_id = u.id
        WHERE u.email = ? LIMIT 1`,
       [email]
     );
@@ -167,7 +170,7 @@ export const loginTeacher = async (email, password) => {
     };
   }
 
-  // Updated Check: Only role 4 is allowed to login
+  // Only role 4 is allowed to login
   if (user.role !== 4) {
     throw {
       statusCode: 403,
@@ -193,7 +196,8 @@ export const loginTeacher = async (email, password) => {
       email: user.email,
       name: user.name,
       role: user.role,
-      school_id: user.school_id 
+      school_id: user.school_id,
+      teacher_id: user.teacher_id || null // Token me bhi teacher_id secure rakh sakte hain
     },
     secret,
     {
@@ -212,7 +216,13 @@ export const loginTeacher = async (email, password) => {
       school_id: user.school_id,
       school_name: user.school_name || 'SchoolSanchalan',
       school_logo: user.school_logo || '',
-      school_city: user.school_city || ''
+      school_city: user.school_city || '',
+      // Naya Teacher specific data add kar diya hai
+      teacher_id: user.teacher_id || null,
+      employee_code: user.employee_code || '',
+      designation: user.designation || '',
+      qualification: user.qualification || '',
+      teacher_mobile: user.teacher_mobile || ''
     }
   };
 
